@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/8.0.172-ea"
+          xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+    <columnConstraints>
+        <ColumnConstraints/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints/>
+    </rowConstraints>
+    <children>
+        <SplitPane dividerPositions="0.5" prefHeight="600.0" prefWidth="900.0">
+            <items>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                    <children>
+                        <Label layoutX="99.0" layoutY="98.0" text="会员ID"/>
+                        <TextField fx:id="id" layoutX="183.0" layoutY="93.0" prefHeight="26.0" prefWidth="167.0"/>
+                        <Label layoutX="93.0" layoutY="155.0" text="支付密码"/>
+                        <PasswordField fx:id="pwd" layoutX="183.0" layoutY="150.0" prefHeight="26.0" prefWidth="167.0"/>
+                        <Label layoutX="95.0" layoutY="215.0" text="折扣套餐"/>
+                        <CheckBox layoutX="183.0" layoutY="214.0" disable="true" text="1"/>
+                        <CheckBox layoutX="183.0" layoutY="248.0" disable="true" text="2"/>
+                        <CheckBox layoutX="183.0" layoutY="282.0" disable="true" text="3"/>
+                        <CheckBox layoutX="183.0" layoutY="316.0" disable="true" text="4"/>
+                        <CheckBox layoutX="183.0" layoutY="350.0" disable="true" text="5"/>
+                        <TextField fx:id="one" id="1" onAction="#onCheck" layoutX="234.0" layoutY="210.0"/>
+                        <TextField fx:id="two" id="2" onAction="#onCheck" layoutX="234.0" layoutY="244.0"/>
+                        <TextField fx:id="three" id="3" onAction="#onCheck" layoutX="234.0" layoutY="278.0"/>
+                        <TextField fx:id="four" id="4" onAction="#onCheck" layoutX="234.0" layoutY="312.0"/>
+                        <TextField fx:id="five" id="5" onAction="#onCheck" layoutX="234.0" layoutY="346.0"/>
+                        <Button fx:id="start" layoutX="132.0" layoutY="541.0" mnemonicParsing="false"
+                                onAction="#onStartClick" text="开 始"/>
+                        <Button layoutX="255.0" layoutY="541.0" mnemonicParsing="false" onAction="#onStopClick"
+                                text="停 止"/>
+                    </children>
+                </AnchorPane>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                    <children>
+                        <Button layoutX="194.0" layoutY="542.0" mnemonicParsing="false" onAction="#onClearClick"
+                                text="清 除"/>
+                        <TextArea fx:id="logs" editable="false" layoutX="19.0" layoutY="29.0" prefHeight="474.0"
+                                  prefWidth="411.0"/>
+                    </children>
+                </AnchorPane>
+            </items>
+        </SplitPane>
+    </children>
+</GridPane>
