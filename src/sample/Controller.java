@@ -3,7 +3,6 @@ package sample;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
@@ -17,7 +16,7 @@ public class Controller {
     @FXML
     private TextField id;
     @FXML
-    private PasswordField pwd;
+    private TextField pwd;
     @FXML
     private Button start;
     @FXML
@@ -32,6 +31,8 @@ public class Controller {
     private TextField four;
     @FXML
     private TextField five;
+    @FXML
+    private TextField sleep;
 
     @FXML
     public void onCheck(ActionEvent event) {
@@ -42,9 +43,10 @@ public class Controller {
         String huiyuanId = id.getText();
         String huiyuanPassTwo = pwd.getText();
         Map<String, String> cbs = getCbs(one, two, three, four, five);
+        String sleepTime = sleep.getText();
         logs.appendText("--------------------秒杀开始--------------------" + System.lineSeparator());
         logs.appendText(String.format("秒杀的折扣数量参数是%s", cbs.toString()) + System.lineSeparator());
-        service.start(logs, huiyuanId, huiyuanPassTwo, cbs);
+        service.start(logs, huiyuanId, huiyuanPassTwo, cbs, sleepTime);
         start.setDisable(true);
     }
 

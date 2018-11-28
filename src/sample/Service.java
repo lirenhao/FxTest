@@ -17,7 +17,7 @@ class Service {
         }
     }
 
-    void start(TextArea logs, String id, String pwd, Map<String, String> ids) {
+    void start(TextArea logs, String id, String pwd, Map<String, String> ids, String sleepTime) {
         client = new OkHttpClient.Builder().build();
 
         Headers headers = new Headers.Builder().add("Cookie", String.format("huiyuan%%5Fid=%s", id)).build();
@@ -35,20 +35,24 @@ class Service {
             @Override
             public void onResponse(Call call, Response resp) throws IOException {
                 String html = new String(resp.body().bytes(), "GBK");
-                String[] pfIds = between(html, "gp_show.aspx?gp_id=", "'");
+                String[] pfIds = handleHtml(html);
                 logs.appendText("获取的批发商品ID" + Arrays.toString(pfIds) + System.lineSeparator());
+
+                String[] pfId = Arrays.stream(pfIds).reduce("0-0",
+                        (a, b) -> Integer.parseInt(a.split("-")[1]) >
+                                Integer.parseInt(b.split("-")[1]) ? a : b).split("-");
+                logs.appendText("选取秒杀的商品ID" + Arrays.toString(pfId) + System.lineSeparator());
+
                 for (String zkId : ids.keySet()) {
-                    for (String pfId : pfIds) {
-                        if (client.dispatcher().executorService().isShutdown()) {
-                            break;
-                        } else {
-                            buy(logs, id, pwd, pfId, zkId, ids.get(zkId));
-                        }
-                        try {
-                            Thread.sleep(2000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                    if (client.dispatcher().executorService().isShutdown()) {
+                        break;
+                    } else {
+                        buy(logs, id, pwd, pfId[0], zkId, ids.get(zkId));
+                    }
+                    try {
+                        Thread.sleep(Integer.parseInt(sleepTime));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -83,6 +87,16 @@ class Service {
         }
     }
 
+
+    private String[] handleHtml(String html) {
+        String[] parts = html.split("gp_show.aspx\\?");
+        return Arrays.stream(parts)
+                .filter(subPart -> subPart.contains("gp_id="))
+                .map(subPart -> subPart.split("\\.00</td>")[0])
+                .map(subPart -> between(subPart, "gp_id=", "'")[0]
+                        + subPart.substring(subPart.indexOf(".00-") + 3).replace(",", ""))
+                .toArray(String[]::new);
+    }
 
     private String[] between(String value, String start, String end) {
         String[] parts = value.split(end);
