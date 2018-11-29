@@ -6,6 +6,8 @@ import okhttp3.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 class Service {
 
@@ -55,18 +57,21 @@ class Service {
     void start(TextArea logs, String id, String pwd, String gpId, Map<String, String> zkIds, String sleepTime) {
         init();
 
+        ExecutorService threadService = Executors.newFixedThreadPool(zkIds.size());
         for (String zkId : zkIds.keySet()) {
-            while (status) {
-                if (client.dispatcher().executorService().isShutdown()) {
-                    break;
-                } else {
-                    buy(logs, id, pwd, gpId, zkId, zkIds.get(zkId));
-                }
-                try {
-                    Thread.sleep(Integer.parseInt(sleepTime));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            if (client.dispatcher().executorService().isShutdown()) {
+                break;
+            } else {
+                threadService.submit(() -> {
+                    while (status && !client.dispatcher().executorService().isShutdown()) {
+                        buy(logs, id, pwd, gpId, zkId, zkIds.get(zkId));
+                        try {
+                            Thread.sleep(Integer.parseInt(sleepTime));
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
             }
         }
     }
@@ -83,6 +88,17 @@ class Service {
                 .url("http://cnydvip.net/shop/gp_cart.aspx")
                 .post(RequestBody.create(mediaType, requestBody)).build();
         if (!client.dispatcher().executorService().isShutdown()) {
+            synchronized (logs) {
+                try {
+                    Response resp = client.newCall(request).execute();
+                    logs.appendText(String.format("秒杀商品%s,折扣%s,数量%s", pfId, zkId, num) + System.lineSeparator());
+                    String body = new String(resp.body().bytes(), "GBK");
+                    logs.appendText(body + System.lineSeparator());
+                } catch (IOException e) {
+                    logs.appendText(String.format("秒杀商品%s,折扣%s,数量%s异常[%s]", pfId, zkId, num, e.getMessage()) + System.lineSeparator());
+                }
+            }
+            /*
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -96,6 +112,7 @@ class Service {
                     logs.appendText(body + System.lineSeparator());
                 }
             });
+            */
         }
     }
 
