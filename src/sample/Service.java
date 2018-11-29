@@ -41,7 +41,7 @@ class Service {
                 String[] gpIds = handleHtml(html);
                 logs.appendText("商品ID" + Arrays.toString(gpIds) + System.lineSeparator());
                 return Arrays.stream(gpIds).reduce("0-0",
-                        (a, b) -> Integer.parseInt(a.split("-")[1]) >
+                        (a, b) -> Integer.parseInt(a.split("-")[1]) >=
                                 Integer.parseInt(b.split("-")[1]) ? a : b).split("-")[0];
             } else {
                 logs.appendText(String.format("商品ID获取错误[%s]", new String(resp.body().bytes(), "GBK")) + System.lineSeparator());
