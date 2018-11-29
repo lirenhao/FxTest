@@ -52,11 +52,12 @@ public class Controller {
     public void onStartClick() {
         String huiyuanId = id.getText();
         String huiyuanPassTwo = pwd.getText();
+        String shangpinId = gpId.getText();
         Map<String, String> cbs = getCbs(one, two, three, four, five);
         String sleepTime = sleep.getText();
         logs.appendText("--------------------秒杀开始--------------------" + System.lineSeparator());
         logs.appendText(String.format("秒杀的折扣数量参数是%s", cbs.toString()) + System.lineSeparator());
-        service.start(logs, huiyuanId, huiyuanPassTwo, cbs, sleepTime);
+        service.start(logs, huiyuanId, huiyuanPassTwo, shangpinId, cbs, sleepTime);
         start.setDisable(true);
     }
 
