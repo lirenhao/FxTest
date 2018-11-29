@@ -10,53 +10,65 @@ import java.util.Map;
 class Service {
 
     private OkHttpClient client;
+    private boolean status;
+
+    private void init() {
+        if (client == null || client.dispatcher().executorService().isShutdown()) {
+            client = new OkHttpClient.Builder().build();
+        }
+        status = true;
+    }
 
     void close() {
         if (client != null) {
             client.dispatcher().executorService().shutdown();
         }
+        status = false;
     }
 
-    void start(TextArea logs, String id, String pwd, Map<String, String> ids, String sleepTime) {
-        client = new OkHttpClient.Builder().build();
+    String getGps(TextArea logs, String id) {
+        init();
 
         Headers headers = new Headers.Builder().add("Cookie", String.format("huiyuan%%5Fid=%s", id)).build();
         Request request = new Request.Builder()
                 .headers(headers)
                 .url("http://cnydvip.net/shop/gpf.aspx").build();
 
-        client.newCall(request).enqueue(new Callback() {
-
-            @Override
-            public void onFailure(Call call, IOException e) {
-                logs.appendText(String.format("获取商品ID请求异常[%s]", e.getMessage()) + System.lineSeparator());
-            }
-
-            @Override
-            public void onResponse(Call call, Response resp) throws IOException {
+        try {
+            Response resp = client.newCall(request).execute();
+            if (resp.isSuccessful()) {
                 String html = new String(resp.body().bytes(), "GBK");
-                String[] pfIds = handleHtml(html);
-                logs.appendText("获取的批发商品ID" + Arrays.toString(pfIds) + System.lineSeparator());
-
-                String[] pfId = Arrays.stream(pfIds).reduce("0-0",
+                String[] gpIds = handleHtml(html);
+                logs.appendText("商品ID" + Arrays.toString(gpIds) + System.lineSeparator());
+                return Arrays.stream(gpIds).reduce("0-0",
                         (a, b) -> Integer.parseInt(a.split("-")[1]) >
-                                Integer.parseInt(b.split("-")[1]) ? a : b).split("-");
-                logs.appendText("选取秒杀的商品ID" + Arrays.toString(pfId) + System.lineSeparator());
+                                Integer.parseInt(b.split("-")[1]) ? a : b).split("-")[0];
+            } else {
+                logs.appendText(String.format("商品ID获取错误[%s]", new String(resp.body().bytes(), "GBK")) + System.lineSeparator());
+            }
+        } catch (IOException e) {
+            logs.appendText(String.format("商品ID获取异常[%s]", e.getMessage()) + System.lineSeparator());
+        }
+        return "";
+    }
 
-                for (String zkId : ids.keySet()) {
-                    if (client.dispatcher().executorService().isShutdown()) {
-                        break;
-                    } else {
-                        buy(logs, id, pwd, pfId[0], zkId, ids.get(zkId));
-                    }
-                    try {
-                        Thread.sleep(Integer.parseInt(sleepTime));
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+    void start(TextArea logs, String id, String pwd, String gpId, Map<String, String> zkIds, String sleepTime) {
+        init();
+
+        for (String zkId : zkIds.keySet()) {
+            while (status) {
+                if (client.dispatcher().executorService().isShutdown()) {
+                    break;
+                } else {
+                    buy(logs, id, pwd, gpId, zkId, zkIds.get(zkId));
+                }
+                try {
+                    Thread.sleep(Integer.parseInt(sleepTime));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
-        });
+        }
     }
 
     // "189954"

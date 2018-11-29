@@ -20,8 +20,6 @@ public class Controller {
     @FXML
     private Button start;
     @FXML
-    private TextArea logs;
-    @FXML
     private TextField one;
     @FXML
     private TextField two;
@@ -33,9 +31,21 @@ public class Controller {
     private TextField five;
     @FXML
     private TextField sleep;
+    @FXML
+    private TextField gpId;
+    @FXML
+    private TextArea gps;
+    @FXML
+    private TextArea logs;
 
     @FXML
     public void onCheck(ActionEvent event) {
+    }
+
+    @FXML
+    public void onGetGpsClick() {
+        String huiyuanId = id.getText();
+        gpId.setText(service.getGps(gps, huiyuanId));
     }
 
     @FXML
