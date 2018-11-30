@@ -8,15 +8,16 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 class Service {
 
     private OkHttpClient client;
     private boolean status;
 
-    private void init() {
+    private void init(int timeout) {
         if (client == null || client.dispatcher().executorService().isShutdown()) {
-            client = new OkHttpClient.Builder().build();
+            client = new OkHttpClient.Builder().connectTimeout(timeout, TimeUnit.SECONDS).build();
         }
         status = true;
     }
@@ -28,8 +29,8 @@ class Service {
         status = false;
     }
 
-    String getGps(TextArea logs, String id) {
-        init();
+    String getGps(TextArea logs, String id, int timeout) {
+        init(timeout);
 
         Headers headers = new Headers.Builder().add("Cookie", String.format("huiyuan%%5Fid=%s", id)).build();
         Request request = new Request.Builder()
@@ -41,7 +42,8 @@ class Service {
             if (resp.isSuccessful()) {
                 String html = new String(resp.body().bytes(), "GBK");
                 String[] gpIds = handleHtml(html);
-                logs.appendText("商品ID" + Arrays.toString(gpIds) + System.lineSeparator());
+                String[] allGpIds = handleHtml2(html);
+                logs.appendText("未售罄商品ID" + Arrays.toString(gpIds) + ",所有商品ID" + Arrays.toString(allGpIds) + System.lineSeparator());
                 return Arrays.stream(gpIds).reduce("0-0",
                         (a, b) -> Integer.parseInt(a.split("-")[1]) >=
                                 Integer.parseInt(b.split("-")[1]) ? a : b).split("-")[0];
@@ -54,8 +56,8 @@ class Service {
         return "";
     }
 
-    void start(TextArea logs, String id, String pwd, String gpId, Map<String, String> zkIds, String sleepTime) {
-        init();
+    void start(TextArea logs, String id, String pwd, String gpId, Map<String, String> zkIds, String sleepTime, int timeout) {
+        init(timeout);
 
         ExecutorService threadService = Executors.newFixedThreadPool(zkIds.size());
         for (String zkId : zkIds.keySet()) {
@@ -118,6 +120,17 @@ class Service {
 
 
     private String[] handleHtml(String html) {
+        String[] parts = html.split("gp_show.aspx\\?");
+        return Arrays.stream(parts)
+                .filter(subPart -> subPart.contains("gp_id="))
+                .filter(subPart -> !subPart.contains("售罄"))
+                .map(subPart -> subPart.split("\\.00</td>")[0])
+                .map(subPart -> between(subPart, "gp_id=", "'")[0]
+                        + subPart.substring(subPart.indexOf(".00-") + 3).replace(",", ""))
+                .toArray(String[]::new);
+    }
+
+    private String[] handleHtml2(String html) {
         String[] parts = html.split("gp_show.aspx\\?");
         return Arrays.stream(parts)
                 .filter(subPart -> subPart.contains("gp_id="))

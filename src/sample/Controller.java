@@ -32,6 +32,8 @@ public class Controller {
     @FXML
     private TextField sleep;
     @FXML
+    private TextField time;
+    @FXML
     private TextField gpId;
     @FXML
     private TextArea gps;
@@ -45,7 +47,8 @@ public class Controller {
     @FXML
     public void onGetGpsClick() {
         String huiyuanId = id.getText();
-        gpId.setText(service.getGps(gps, huiyuanId));
+        String timeout = time.getText();
+        gpId.setText(service.getGps(gps, huiyuanId, Integer.parseInt(timeout)));
     }
 
     @FXML
@@ -55,9 +58,10 @@ public class Controller {
         String shangpinId = gpId.getText();
         Map<String, String> cbs = getCbs(one, two, three, four, five);
         String sleepTime = sleep.getText();
+        String timeout = time.getText();
         logs.appendText("--------------------秒杀开始--------------------" + System.lineSeparator());
         logs.appendText(String.format("秒杀的折扣数量参数是%s", cbs.toString()) + System.lineSeparator());
-        service.start(logs, huiyuanId, huiyuanPassTwo, shangpinId, cbs, sleepTime);
+        service.start(logs, huiyuanId, huiyuanPassTwo, shangpinId, cbs, sleepTime, Integer.parseInt(timeout));
         start.setDisable(true);
     }
 

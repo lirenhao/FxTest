@@ -42,6 +42,8 @@
                         <TextField id="5" fx:id="five" layoutX="234.0" layoutY="380.0" onAction="#onCheck" />
                         <Label layoutX="93.0" layoutY="439.0" text="间隔时间" />
                         <TextField fx:id="sleep" layoutX="183.0" layoutY="434.0" prefHeight="26.0" prefWidth="167.0" text="1000" />
+                        <Label layoutX="93.0" layoutY="490.0" text="超时时间" />
+                        <TextField fx:id="time" layoutX="183.0" layoutY="485.0" prefHeight="26.0" prefWidth="167.0" text="60" />
                         <Button fx:id="getGps" layoutX="113.0" layoutY="541.0" mnemonicParsing="false" onAction="#onGetGpsClick" text="商 品" />
                         <Button fx:id="start" layoutX="209.0" layoutY="541.0" mnemonicParsing="false" onAction="#onStartClick" text="开 始" />
                         <Button layoutX="303.0" layoutY="541.0" mnemonicParsing="false" onAction="#onStopClick" text="停 止" />
