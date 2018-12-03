@@ -5,6 +5,7 @@ import okhttp3.*;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,6 +15,7 @@ class Service {
 
     private OkHttpClient client;
     private boolean status;
+    private Map<String, Boolean> zkStatus = new HashMap<>();
 
     private void init(int timeout) {
         if (client == null || client.dispatcher().executorService().isShutdown()) {
@@ -64,8 +66,9 @@ class Service {
             if (client.dispatcher().executorService().isShutdown()) {
                 break;
             } else {
+                zkStatus.put(zkId, true);
                 threadService.submit(() -> {
-                    while (status && !client.dispatcher().executorService().isShutdown()) {
+                    while (status && !client.dispatcher().executorService().isShutdown() && zkStatus.get(zkId)) {
                         buy(logs, id, pwd, gpId, zkId, zkIds.get(zkId));
                         try {
                             Thread.sleep(Integer.parseInt(sleepTime));
@@ -95,6 +98,10 @@ class Service {
                     Response resp = client.newCall(request).execute();
                     logs.appendText(String.format("秒杀商品%s,折扣%s,数量%s", pfId, zkId, num) + System.lineSeparator());
                     String body = new String(resp.body().bytes(), "GBK");
+                    if (body.contains("成功")) {
+                        zkStatus.remove(zkId);
+                        logs.appendText(String.format("--------秒杀商品%s成功,折扣%s,数量%s--------", pfId, zkId, num) + System.lineSeparator());
+                    }
                     logs.appendText(body + System.lineSeparator());
                 } catch (IOException e) {
                     logs.appendText(String.format("秒杀商品%s,折扣%s,数量%s异常[%s]", pfId, zkId, num, e.getMessage()) + System.lineSeparator());
