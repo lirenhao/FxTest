@@ -19,7 +19,10 @@ class Service {
 
     private void init(int timeout) {
         if (client == null || client.dispatcher().executorService().isShutdown()) {
-            client = new OkHttpClient.Builder().connectTimeout(timeout, TimeUnit.SECONDS).build();
+            client = new OkHttpClient.Builder()
+                    .writeTimeout(timeout, TimeUnit.SECONDS)
+                    .readTimeout(timeout, TimeUnit.SECONDS)
+                    .connectTimeout(timeout, TimeUnit.SECONDS).build();
         }
         status = true;
     }
