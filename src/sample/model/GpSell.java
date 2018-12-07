@@ -69,11 +69,12 @@ public class GpSell {
     @Override
     public String toString() {
         return "zhekou=" + zhekou + '&' +
-                "&sell_zhekou=" + sell_zhekou + '&' +
-                "&sell_zhekoua=" + sell_zhekoua + '&' +
-                "&sell_num=" + sell_num + '&' +
-                "&pass_two=" + pass_two + '&' +
-                "&gp_id=" + gp_id + '&' +
-                "&jiage=" + jiage;
+                "sell_zhekou=" + sell_zhekou + '&' +
+                "sell_zhekoua=" + sell_zhekoua + '&' +
+                "sell_num=" + sell_num + '&' +
+                "pass_two=" + pass_two + '&' +
+                "action=%C8%B7%C8%CF%B3%F6%CA%DB&" +
+                "gp_id=" + gp_id + '&' +
+                "jiage=" + jiage;
     }
 }
