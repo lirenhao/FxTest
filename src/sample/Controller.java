@@ -7,8 +7,6 @@ import javafx.scene.control.TextField;
 import sample.model.GpBuy;
 import sample.model.GpSell;
 
-import java.util.Map;
-
 public class Controller {
 
     private Service service = new Service();
@@ -48,12 +46,12 @@ public class Controller {
 
         GpSell gpSell = new GpSell();
         gpSell.setZhekou(zkId.getText());
-        gpSell.setSell_zhekou("");
-        gpSell.setSell_zhekoua("");
+        gpSell.setSell_zhekou(sell.getText());
+        gpSell.setSell_zhekoua(zkNum.getText());
         gpSell.setSell_num(zkNum.getText());
         gpSell.setPass_two(pwd.getText());
         gpSell.setGp_id(gpId.getText());
-        gpSell.setJiage("");
+        gpSell.setJiage(buy.getText());
 
         String hostName = host.getText();
         String huiyuanId = id.getText();
@@ -61,7 +59,9 @@ public class Controller {
         String timeout = time.getText();
 
         logs.appendText("--------------------秒杀开始--------------------" + System.lineSeparator());
-        service.start(logs, hostName, huiyuanId, gpBuy, gpSell, sleepTime, Integer.parseInt(timeout));
+        new Thread(() -> {
+            service.start(logs, hostName, huiyuanId, gpBuy, gpSell, sleepTime, Integer.parseInt(timeout));
+        }).start();
         start.setDisable(true);
     }
 
