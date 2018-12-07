@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextArea?>
@@ -23,36 +22,33 @@
             <items>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                     <children>
-                        <Label layoutX="102.0" layoutY="71.0" text="商品ID" />
-                        <TextField fx:id="gpId" layoutX="183.0" layoutY="66.0" prefHeight="26.0" prefWidth="167.0" />
-                        <Label layoutX="99.0" layoutY="132.0" text="会员ID" />
-                        <TextField fx:id="id" layoutX="183.0" layoutY="127.0" prefHeight="26.0" prefWidth="167.0" />
-                        <Label layoutX="93.0" layoutY="189.0" text="支付密码" />
-                        <TextField fx:id="pwd" layoutX="183.0" layoutY="184.0" prefHeight="26.0" prefWidth="167.0" />
-                        <Label layoutX="95.0" layoutY="249.0" text="折扣套餐" />
-                        <CheckBox disable="true" layoutX="183.0" layoutY="248.0" text="1" />
-                        <CheckBox disable="true" layoutX="183.0" layoutY="282.0" text="2" />
-                        <CheckBox disable="true" layoutX="183.0" layoutY="316.0" text="3" />
-                        <CheckBox disable="true" layoutX="183.0" layoutY="350.0" text="4" />
-                        <CheckBox disable="true" layoutX="183.0" layoutY="384.0" text="5" />
-                        <TextField id="1" fx:id="one" layoutX="234.0" layoutY="244.0" onAction="#onCheck" />
-                        <TextField id="2" fx:id="two" layoutX="234.0" layoutY="278.0" onAction="#onCheck" />
-                        <TextField id="3" fx:id="three" layoutX="234.0" layoutY="312.0" onAction="#onCheck" />
-                        <TextField id="4" fx:id="four" layoutX="234.0" layoutY="346.0" onAction="#onCheck" />
-                        <TextField id="5" fx:id="five" layoutX="234.0" layoutY="380.0" onAction="#onCheck" />
-                        <Label layoutX="93.0" layoutY="439.0" text="间隔时间" />
-                        <TextField fx:id="sleep" layoutX="183.0" layoutY="434.0" prefHeight="26.0" prefWidth="167.0" text="1000" />
+                        <Label layoutX="109.0" layoutY="38.0" text="域名" />
+                        <TextField fx:id="host" layoutX="183.0" layoutY="33.0" prefHeight="26.0" prefWidth="167.0" text="cnydvip.net" />
+                        <Label layoutX="100.0" layoutY="89.0" text="商品ID" />
+                        <TextField fx:id="gpId" layoutX="183.0" layoutY="84.0" prefHeight="26.0" prefWidth="167.0" />
+                        <Label layoutX="100.0" layoutY="140.0" text="会员ID" />
+                        <TextField fx:id="id" layoutX="183.0" layoutY="135.0" prefHeight="26.0" prefWidth="167.0" />
+                        <Label layoutX="96.0" layoutY="190.0" text="支付密码" />
+                        <TextField fx:id="pwd" layoutX="183.0" layoutY="185.0" prefHeight="26.0" prefWidth="167.0" />
+                        <Label layoutX="96.0" layoutY="240.0" text="折扣套餐" />
+                        <TextField fx:id="zkId" layoutX="183.0" layoutY="235.0" prefHeight="26.0" prefWidth="167.0" />
+                        <Label layoutX="96.0" layoutY="290.0" text="购买数量" />
+                        <TextField fx:id="zkNum" layoutX="183.0" layoutY="285.0" prefHeight="26.0" prefWidth="167.0" />
+                        <Label layoutX="93.0" layoutY="340.0" text="折扣价格" />
+                        <TextField fx:id="buy" layoutX="183.0" layoutY="336.0" prefHeight="26.0" prefWidth="167.0" />
+                        <Label layoutX="93.0" layoutY="390.0" text="出售价格" />
+                        <TextField fx:id="sell" layoutX="183.0" layoutY="386.0" prefHeight="26.0" prefWidth="167.0" />
+                        <Label layoutX="93.0" layoutY="440.0" text="间隔时间" />
+                        <TextField fx:id="sleep" layoutX="183.0" layoutY="436.0" prefHeight="26.0" prefWidth="167.0" text="1000" />
                         <Label layoutX="93.0" layoutY="490.0" text="超时时间" />
-                        <TextField fx:id="time" layoutX="183.0" layoutY="485.0" prefHeight="26.0" prefWidth="167.0" text="60" />
-                        <Button fx:id="getGps" layoutX="113.0" layoutY="541.0" mnemonicParsing="false" onAction="#onGetGpsClick" text="商 品" />
-                        <Button fx:id="start" layoutX="209.0" layoutY="541.0" mnemonicParsing="false" onAction="#onStartClick" text="开 始" />
-                        <Button layoutX="303.0" layoutY="541.0" mnemonicParsing="false" onAction="#onStopClick" text="停 止" />
+                        <TextField fx:id="time" layoutX="183.0" layoutY="486.0" prefHeight="26.0" prefWidth="167.0" text="60" />
+                        <Button fx:id="start" layoutX="122.0" layoutY="541.0" mnemonicParsing="false" onAction="#onStartClick" text="开 始" />
+                        <Button layoutX="273.0" layoutY="541.0" mnemonicParsing="false" onAction="#onStopClick" text="停 止" />
                     </children>
                 </AnchorPane>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                     <children>
-                        <TextArea fx:id="logs" editable="false" layoutX="19.0" layoutY="206.0" prefHeight="320.0" prefWidth="411.0" />
-                        <TextArea fx:id="gps" editable="false" layoutX="19.0" layoutY="19.0" prefHeight="179.0" prefWidth="411.0" />
+                        <TextArea fx:id="logs" editable="false" layoutX="19.0" layoutY="19.0" prefHeight="507.0" prefWidth="411.0" />
                         <Button layoutX="194.0" layoutY="542.0" mnemonicParsing="false" onAction="#onClearClick" text="清 除" />
                     </children>
                 </AnchorPane>

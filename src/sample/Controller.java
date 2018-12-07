@@ -1,12 +1,12 @@
 package sample;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import sample.model.GpBuy;
+import sample.model.GpSell;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class Controller {
@@ -14,65 +14,55 @@ public class Controller {
     private Service service = new Service();
 
     @FXML
+    private TextField host;
+    @FXML
+    private TextField gpId;
+    @FXML
     private TextField id;
     @FXML
     private TextField pwd;
     @FXML
-    private Button start;
+    private TextField zkId;
     @FXML
-    private TextField one;
+    private TextField zkNum;
     @FXML
-    private TextField two;
+    private TextField buy;
     @FXML
-    private TextField three;
-    @FXML
-    private TextField four;
-    @FXML
-    private TextField five;
+    private TextField sell;
     @FXML
     private TextField sleep;
     @FXML
     private TextField time;
     @FXML
-    private TextField gpId;
-    @FXML
-    private TextArea gps;
-    @FXML
     private TextArea logs;
-
     @FXML
-    public void onCheck(ActionEvent event) {
-    }
-
-    @FXML
-    public void onGetGpsClick() {
-        String huiyuanId = id.getText();
-        String timeout = time.getText();
-        gpId.setText(service.getGps(gps, huiyuanId, Integer.parseInt(timeout)));
-    }
+    private Button start;
 
     @FXML
     public void onStartClick() {
+        GpBuy gpBuy = new GpBuy();
+        gpBuy.setId(gpId.getText());
+        gpBuy.setHuiyuan_pass_two(pwd.getText());
+        gpBuy.setZhekou(zkId.getText());
+        gpBuy.setShuliang(zkNum.getText());
+
+        GpSell gpSell = new GpSell();
+        gpSell.setZhekou(zkId.getText());
+        gpSell.setSell_zhekou("");
+        gpSell.setSell_zhekoua("");
+        gpSell.setSell_num(zkNum.getText());
+        gpSell.setPass_two(pwd.getText());
+        gpSell.setGp_id(gpId.getText());
+        gpSell.setJiage("");
+
+        String hostName = host.getText();
         String huiyuanId = id.getText();
-        String huiyuanPassTwo = pwd.getText();
-        String shangpinId = gpId.getText();
-        Map<String, String> cbs = getCbs(one, two, three, four, five);
         String sleepTime = sleep.getText();
         String timeout = time.getText();
-        logs.appendText("--------------------秒杀开始--------------------" + System.lineSeparator());
-        logs.appendText(String.format("秒杀的折扣数量参数是%s", cbs.toString()) + System.lineSeparator());
-        service.start(logs, huiyuanId, huiyuanPassTwo, shangpinId, cbs, sleepTime, Integer.parseInt(timeout));
-        start.setDisable(true);
-    }
 
-    private Map<String, String> getCbs(TextField... array) {
-        Map<String, String> cbs = new HashMap<>();
-        for(TextField v: array) {
-            if (!"".equals(v.getText())) {
-                cbs.put(v.getId(), v.getText());
-            }
-        }
-        return cbs;
+        logs.appendText("--------------------秒杀开始--------------------" + System.lineSeparator());
+        service.start(logs, hostName, huiyuanId, gpBuy, gpSell, sleepTime, Integer.parseInt(timeout));
+        start.setDisable(true);
     }
 
     @FXML

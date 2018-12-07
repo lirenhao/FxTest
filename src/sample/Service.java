@@ -2,20 +2,16 @@ package sample;
 
 import javafx.scene.control.TextArea;
 import okhttp3.*;
+import sample.model.GpBuy;
+import sample.model.GpSell;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 class Service {
 
     private OkHttpClient client;
-    private boolean status;
-    private Map<String, Boolean> zkStatus = new HashMap<>();
 
     private void init(int timeout) {
         if (client == null || client.dispatcher().executorService().isShutdown()) {
@@ -24,108 +20,88 @@ class Service {
                     .readTimeout(timeout, TimeUnit.SECONDS)
                     .connectTimeout(timeout, TimeUnit.SECONDS).build();
         }
-        status = true;
     }
 
     void close() {
         if (client != null) {
             client.dispatcher().executorService().shutdown();
         }
-        status = false;
     }
 
-    String getGps(TextArea logs, String id, int timeout) {
+    void start(TextArea logs, String host, String id, GpBuy buy, GpSell sell, String sleepTime, int timeout) {
         init(timeout);
 
-        Headers headers = new Headers.Builder().add("Cookie", String.format("huiyuan%%5Fid=%s", id)).build();
-        Request request = new Request.Builder()
-                .headers(headers)
-                .url("http://cnydvip.net/shop/gpf.aspx").build();
-
-        try {
-            Response resp = client.newCall(request).execute();
-            if (resp.isSuccessful()) {
-                String html = new String(resp.body().bytes(), "GBK");
-                String[] gpIds = handleHtml(html);
-                String[] allGpIds = handleHtml2(html);
-                logs.appendText("未售罄商品ID" + Arrays.toString(gpIds) + ",所有商品ID" + Arrays.toString(allGpIds) + System.lineSeparator());
-                return Arrays.stream(gpIds).reduce("0-0",
-                        (a, b) -> Integer.parseInt(a.split("-")[1]) >=
-                                Integer.parseInt(b.split("-")[1]) ? a : b).split("-")[0];
+        boolean buyResult = false;
+        boolean shellResult = false;
+        while (!client.dispatcher().executorService().isShutdown() && (!buyResult || !shellResult)) {
+            if (buyResult) {
+                shellResult = sell(logs, host, id, sell);
             } else {
-                logs.appendText(String.format("商品ID获取错误[%s]", new String(resp.body().bytes(), "GBK")) + System.lineSeparator());
+                buyResult = buy(logs, host, id, buy);
             }
-        } catch (IOException e) {
-            logs.appendText(String.format("商品ID获取异常[%s]", e.getMessage()) + System.lineSeparator());
-        }
-        return "";
-    }
-
-    void start(TextArea logs, String id, String pwd, String gpId, Map<String, String> zkIds, String sleepTime, int timeout) {
-        init(timeout);
-
-        ExecutorService threadService = Executors.newFixedThreadPool(zkIds.size());
-        for (String zkId : zkIds.keySet()) {
-            if (client.dispatcher().executorService().isShutdown()) {
-                break;
-            } else {
-                zkStatus.put(zkId, true);
-                threadService.submit(() -> {
-                    while (status && !client.dispatcher().executorService().isShutdown() && zkStatus.get(zkId)) {
-                        buy(logs, id, pwd, gpId, zkId, zkIds.get(zkId));
-                        try {
-                            Thread.sleep(Integer.parseInt(sleepTime));
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+            try {
+                Thread.sleep(Integer.parseInt(sleepTime));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
 
     // "189954"
-    private void buy(TextArea logs, String id, String pwd, String pfId, String zkId, String num) {
+    private boolean buy(TextArea logs, String host, String id, GpBuy buy) {
+        boolean result = false;
         Headers headers = new Headers.Builder().add("Cookie", String.format("huiyuan%%5Fid=%s", id)).build();
-
         MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded; charset=GBK");
-        String requestBody = String.format("huiyuan_pass_two=%s&id=%s&zhekou=%s&shuliang=%s", pwd, pfId, zkId, num);
 
         Request request = new Request.Builder()
                 .headers(headers)
-                .url("http://cnydvip.net/shop/gp_cart.aspx")
-                .post(RequestBody.create(mediaType, requestBody)).build();
+                .url(String.format("http://%s/shop/gp_cart.aspx", host))
+                .post(RequestBody.create(mediaType, buy.toString())).build();
         if (!client.dispatcher().executorService().isShutdown()) {
             synchronized (logs) {
                 try {
                     Response resp = client.newCall(request).execute();
-                    logs.appendText(String.format("秒杀商品%s,折扣%s,数量%s", pfId, zkId, num) + System.lineSeparator());
+                    logs.appendText(String.format("秒杀商品[%s]", buy.toString()) + System.lineSeparator());
                     String body = new String(resp.body().bytes(), "GBK");
                     if (body.contains("成功")) {
-                        zkStatus.remove(zkId);
-                        logs.appendText(String.format("--------秒杀商品%s成功,折扣%s,数量%s--------", pfId, zkId, num) + System.lineSeparator());
+                        result = true;
+                        logs.appendText(String.format("--------秒杀商品[%s]成功--------", buy.toString()) + System.lineSeparator());
                     }
                     logs.appendText(body + System.lineSeparator());
                 } catch (IOException e) {
-                    logs.appendText(String.format("秒杀商品%s,折扣%s,数量%s异常[%s]", pfId, zkId, num, e.getMessage()) + System.lineSeparator());
+                    logs.appendText(String.format("秒杀商品[%s],异常[%s]", buy.toString(), e.getMessage()) + System.lineSeparator());
                 }
             }
-            /*
-            client.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    logs.appendText(String.format("秒杀商品%s,折扣%s,数量%s异常[%s]", pfId, zkId, num, e.getMessage()) + System.lineSeparator());
-                }
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    logs.appendText(String.format("秒杀商品%s,折扣%s,数量%s", pfId, zkId, num) + System.lineSeparator());
-                    String body = new String(response.body().bytes(), "GBK");
-                    logs.appendText(body + System.lineSeparator());
-                }
-            });
-            */
         }
+        return result;
+    }
+
+    private boolean sell(TextArea logs, String host, String id, GpSell sell) {
+        boolean result = false;
+        Headers headers = new Headers.Builder().add("Cookie", String.format("huiyuan%%5Fid=%s", id)).build();
+        MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded; charset=GBK");
+
+        Request request = new Request.Builder()
+                .headers(headers)
+                .url(String.format("http://%s/member/gp/jiaoyi_sell.aspx", host))
+                .post(RequestBody.create(mediaType, sell.toString())).build();
+        if (!client.dispatcher().executorService().isShutdown()) {
+            synchronized (logs) {
+                try {
+                    Response resp = client.newCall(request).execute();
+                    logs.appendText(String.format("出售商品信息[%s]", sell.toString()) + System.lineSeparator());
+                    String body = new String(resp.body().bytes(), "GBK");
+                    if (body.contains("成功")) {
+                        result = true;
+                        logs.appendText(String.format("--------出售商品[%s]成功--------", sell.toString()) + System.lineSeparator());
+                    }
+                    logs.appendText(body + System.lineSeparator());
+                } catch (IOException e) {
+                    logs.appendText(String.format("出售商品[%s],异常[%s]", sell.toString(), e.getMessage()) + System.lineSeparator());
+                }
+            }
+        }
+        return result;
     }
 
 
